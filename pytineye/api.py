@@ -312,7 +312,7 @@ class TinEyeAPIRequest(object):
 
     def search_data(
             self, data, offset=0, limit=100,
-            sort='score', order='desc', **kwargs):
+            sort='score', order='desc',timeout=timeout, **kwargs):
         """
         Perform searches on the TinEye index using image data.
 
@@ -334,14 +334,14 @@ class TinEyeAPIRequest(object):
             'order': order}
 
         image_file = ("image.jpg", data)
-        obj = self._request('search', params=params, image_file=image_file, **kwargs)
+        obj = self._request('search', params=params, image_file=image_file,timeout=timeout, **kwargs)
 
         if obj is None:
             return obj
 
         return TinEyeResponse._from_dict(obj)
 
-    def remaining_searches(self, **kwargs):
+    def remaining_searches(self,timeout=timeout **kwarg):
         """
         Lists the number of searches you have left in your current active block.
 
@@ -352,7 +352,7 @@ class TinEyeAPIRequest(object):
 
         bundle_list = []
 
-        obj = self._request('remaining_searches', **kwargs)
+        obj = self._request('remaining_searches',timeout=timeout, **kwargs)
 
         results = obj.get('results')
 
@@ -372,7 +372,7 @@ class TinEyeAPIRequest(object):
             'bundles': bundle_list,
             'total_remaining_searches': results.get('total_remaining_searches')}
 
-    def image_count(self, **kwargs):
+    def image_count(self,timeout=timeout **kwargs):
         """
         Lists the number of indexed images on TinEye.
 
@@ -381,7 +381,7 @@ class TinEyeAPIRequest(object):
         Returns: TinEye image count.
         """
 
-        obj = self._request('image_count', **kwargs)
+        obj = self._request('image_count',timeout=timeout **kwargs)
         if obj is None:
             return obj
         return obj.get('results')

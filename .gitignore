@@ -2,3 +2,4 @@
 build/
 dist/
 pytineye.egg-info/
+.DS_store
