@@ -341,7 +341,7 @@ class TinEyeAPIRequest(object):
 
         return TinEyeResponse._from_dict(obj)
 
-    def remaining_searches(self,timeout=None,**kwarg):
+    def remaining_searches(self,timeout=None,**kwargs):
         """
         Lists the number of searches you have left in your current active block.
 
