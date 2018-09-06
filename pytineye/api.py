@@ -234,7 +234,7 @@ class TinEyeAPIRequest(object):
             ca_certs=certifi.where())
         self.request = APIRequest(api_url, public_key, private_key)
 
-    def _request(self, method, params=None, image_file=None, **kwargs):
+    def _request(self, method, params=None, image_file=None,timeout = None, **kwargs):
         """
         Send request to API and process results.
 
@@ -257,19 +257,21 @@ class TinEyeAPIRequest(object):
             # If an image file was provided, send a POST request, else send a GET request
             if image_file is None:
                 request_string = self.request.get_request(method, params)
-                response = self.http_pool.request('GET', request_string)
+                response = self.http_pool.request('GET', request_string,timeout = timeout)
             else:
                 filename = image_file[0]
                 request_string, boundary = self.request.post_request(method, filename, params)
                 response = self.http_pool.request_encode_body(
                     'POST', request_string,
                     fields={'image_upload': image_file},
-                    multipart_boundary=boundary)
+                    multipart_boundary=boundary,timeout = timeout)
             # Parse the JSON into a Python object
             obj = json.loads(response.data.decode('utf-8'))
 
         except ValueError as e:
             raise TinEyeAPIError("500", ["Could not decode JSON: %s" % e])
+        except urllib3.exceptions.MaxRetryError as e:
+            return None
 
         # Check the result of the API call
         if response.status != http.client.OK or obj.get('code') != http.client.OK:
@@ -279,7 +281,7 @@ class TinEyeAPIRequest(object):
 
     def search_url(
             self, url, offset=0, limit=100, sort='score',
-            order='desc', **kwargs):
+            order='desc',timeout=None, **kwargs):
         """
         Perform searches on the TinEye index using an image URL.
 
@@ -301,7 +303,10 @@ class TinEyeAPIRequest(object):
             'sort': sort,
             'order': order}
 
-        obj = self._request('search', params, **kwargs)
+        obj = self._request('search', params,timeout=timeout, **kwargs)
+
+        if obj is  None:
+            return obj
 
         return TinEyeResponse._from_dict(obj)
 
@@ -330,6 +335,9 @@ class TinEyeAPIRequest(object):
 
         image_file = ("image.jpg", data)
         obj = self._request('search', params=params, image_file=image_file, **kwargs)
+
+        if obj is None:
+            return obj
 
         return TinEyeResponse._from_dict(obj)
 
@@ -374,4 +382,6 @@ class TinEyeAPIRequest(object):
         """
 
         obj = self._request('image_count', **kwargs)
+        if obj is None:
+            return obj
         return obj.get('results')
