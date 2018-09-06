@@ -372,7 +372,7 @@ class TinEyeAPIRequest(object):
             'bundles': bundle_list,
             'total_remaining_searches': results.get('total_remaining_searches')}
 
-    def image_count(self,timeout=None **kwargs):
+    def image_count(self,timeout=None, **kwargs):
         """
         Lists the number of indexed images on TinEye.
 
