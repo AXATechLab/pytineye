@@ -353,7 +353,8 @@ class TinEyeAPIRequest(object):
         bundle_list = []
 
         obj = self._request('remaining_searches',timeout=timeout, **kwargs)
-
+        if obj is None:
+            return None
         results = obj.get('results')
 
         for bundle in results.get('bundles'):
