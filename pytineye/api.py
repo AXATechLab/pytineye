@@ -18,6 +18,7 @@ from .exceptions import TinEyeAPIError
 
 import certifi
 import urllib3
+import os
 
 
 class TinEyeResponse(object):
@@ -229,7 +230,8 @@ class TinEyeAPIRequest(object):
     """
 
     def __init__(self, api_url='https://api.tineye.com/rest/', public_key=None, private_key=None):
-        self.http_pool = urllib3.PoolManager(
+        self.http_pool = urllib3.ProxyManager(
+            os.environ['HTTP_PROXY'],
             cert_reqs='CERT_REQUIRED',
             ca_certs=certifi.where())
         self.request = APIRequest(api_url, public_key, private_key)
